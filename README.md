@@ -1,4 +1,4 @@
-# 🎤 Capstone: LiveKit Voice AI Workflow  
+# MCP connected LiveKit Voice AI Workflow  
 
 This project implements a **LiveKit-powered Voice AI Workflow** in Python. It allows users to **speak directly to the system**, process their input using **Speech-to-Text (STT)**, apply **LLM-based reasoning**, and return responses in **AI-generated speech** using **Text-to-Speech (TTS)**.  
 
