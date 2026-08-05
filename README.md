@@ -1,133 +1,166 @@
-# MCP connected LiveKit Voice AI Workflow  
+# 🎙️ MCP LiveKit ENG-AR Agent - Bilingual Voice AI Assistant
 
-This project implements a **LiveKit-powered Voice AI Workflow** in Python. It allows users to **speak directly to the system**, process their input using **Speech-to-Text (STT)**, apply **LLM-based reasoning**, and return responses in **AI-generated speech** using **Text-to-Speech (TTS)**.  
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![LiveKit Agents](https://img.shields.io/badge/LiveKit_Agents-1.2-purple.svg)](https://github.com/livekit/agents)
+[![Azure AI](https://img.shields.io/badge/Azure-AI_services-0089D6.svg)](https://azure.microsoft.com/)
+[![GPT-4o-mini](https://img.shields.io/badge/LLM-GPT--4o--mini-teal.svg)](https://openai.com/)
+[![MCP](https://img.shields.io/badge/MCP-FastMCP-6C5CE7.svg)](https://modelcontextprotocol.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The pipeline is fully integrated with an **MCP (Model Context Protocol) server**, enabling seamless interaction and context-aware responses in **both English and Arabic**.  
-
----
-
-## 🚀 Features  
-- 🎙️ **Speech-to-Text (STT):** Converts spoken input into text.  
-- 🧠 **LLM Reasoning:** Processes text input with an AI model for intelligent responses.  
-- 🔊 **Text-to-Speech (TTS):** Generates natural speech output in real-time.  
-- 🌐 **MCP Integration:** Connects with MCP server for context-aware workflow and data exchange.  
-- 🌍 **Bilingual Support:** English and Arabic communication supported.  
+**MCP LiveKit ENG-AR Agent** is a real-time bilingual (English/Arabic) voice AI assistant built with **LiveKit Agents**, Azure AI services, and the **Model Context Protocol (MCP)**. It lets users speak naturally to the system, processes the input through Speech-to-Text (STT) and LLM reasoning, and replies with AI-generated speech in either English or Arabic.
 
 ---
 
-## 📂 Project Structure  
-```  
-MCP_Livekit_ENG-AR_Agent/  
-│── agent.py          # Main entry point for running the agent  
-│── requirements.txt  # Python dependencies  
-│── config/           # Configuration files (API keys, environment setup)  
-│── utils/            # Helper scripts and utility functions  
-│── README.md         # Project documentation  
-```  
+## ✨ Key Features
+
+### 🎯 1. Real-Time Speech-to-Text (STT)
+- Converts spoken input into text in real time using **Azure STT**.
+- Configured with `en-GB` and `ar-EG` languages to support bilingual conversations.
+
+### 🧠 2. LLM Reasoning & Response Generation
+- Processes transcribed text with **GPT-4o-mini** (deployed via Azure OpenAI) to produce intelligent, context-aware replies.
+- A custom `Assistant` agent instructs the model to detect the user's language choice and keep responding in that language.
+
+### 🔊 3. Natural Text-to-Speech (TTS)
+- Generates lifelike audio responses with **Azure TTS** using the multilingual `en-GB-OllieMultilingualNeural` voice.
+- Supports `en-GB` and `ar-EG` so responses match the conversation language.
+
+### 🌐 4. MCP Server Integration
+- Connects the agent to a **FastMCP** server exposed over streamable HTTP (`http://127.0.0.1:8000/mcp/`).
+- The demo MCP server provides `add`, `subtract`, and `user_info` tools, a `greeting://{name}` resource, and a greeting prompt.
+
+### 🌍 5. Bilingual & Code-Switching Support
+- Understands and responds in both **English and Arabic**, handling code-switching mid-conversation.
+- Uses **Silero VAD**, a multilingual turn detector, and BVC noise cancellation for clean, low-latency interaction.
 
 ---
 
-## ⚙️ Installation  
+## 🏗️ System Architecture
 
-1. **Clone the repository:**  
-```bash  
-git clone https://github.com/MarwanAbdellah/MCP_Livekit_ENG-AR_Agent.git  
-cd MCP_Livekit_ENG-AR_Agent  
-```  
-
-2. **Set up a virtual environment (recommended):**  
-```bash  
-python -m venv venv  
-source venv/bin/activate   # Linux/Mac  
-venv\Scripts\activate      # Windows  
-```  
-
-3. **Install dependencies:**  
-```bash  
-pip install -r requirements.txt  
-```  
-
-4. **Configure environment variables:**  
-- Add your **LiveKit API credentials**.  
-- Add your **LLM API key** (e.g., OpenAI, Anthropic, or other supported providers).  
-- Configure **STT** and **TTS** providers.  
-
-You can create a `.env` file in the project root:  
-```env  
-LIVEKIT_API_KEY=your_api_key  
-LIVEKIT_API_SECRET=your_api_secret  
-LLM_API_KEY=your_llm_key  
-```  
+```mermaid
+graph TD
+    A[User speaks into microphone] --> B[LiveKit Room]
+    B --> C[Silero VAD + Multilingual Turn Detector]
+    C --> D[Azure STT - en-GB / ar-EG]
+    D --> E[LLM GPT-4o-mini via Azure OpenAI]
+    E --> F[Azure TTS - OllieMultilingualNeural]
+    F --> G[AI-generated audio response]
+    E <--> H[MCP Server over HTTP :8000]
+    H --> I[FastMCP tools / resources]
+```
 
 ---
 
-## ▶️ Usage  
+## 🛠️ Technology Stack
 
-Run the agent in console mode:  
-```bash  
-python agent.py console  
-```  
+### Backend / Core
+- **Voice Agent Framework**: [LiveKit Agents](https://github.com/livekit/agents) `~1.2` with the `azure`, `openai`, `silero`, `turn-detector`, and `mcp` plugins.
+- **LLM**: GPT-4o-mini served through Azure OpenAI (`azure_deployment="gpt-4o-mini"`).
+- **STT / TTS**: Azure Speech services (`en-GB`, `ar-EG`).
+- **Noise Cancellation**: `livekit-plugins-noise-cancellation` (BVC).
 
-Start a voice session with LiveKit:  
-```bash  
-python agent.py  
-```  
+### Data & Processing
+- **Voice Activity Detection**: Silero VAD.
+- **Turn Detection**: Multilingual turn detector for bilingual conversations.
 
-The system will listen to your microphone, process speech in **real-time**, and respond back with **AI-generated audio**.  
-
----
-
-## 🖇️ MCP Server Integration  
-
-This project integrates with the **MCP server** to handle communication and context sharing.  
-
-Start the MCP server:  
-```bash  
-python mcp_server.py  
-```  
-
-The agent will automatically connect to the server and use it for context-aware AI responses.  
+### MCP / Tooling
+- **Model Context Protocol**: FastMCP server (`mcp[cli]` `>=1.14.1`) with tools, resources, and prompts over streamable HTTP.
+- **Config**: `python-dotenv` for `.env.local` secrets.
 
 ---
 
-## 🌍 Language Support  
+## 🚀 Getting Started
 
-- **English** → STT + LLM Reasoning + TTS  
-- **Arabic** → STT + LLM Reasoning + TTS  
+### Prerequisites
+- **Python 3.11+**
+- **uv** (dependency manager)
+- **LiveKit** cloud project credentials
+- **Azure** Speech + OpenAI deployment keys
+- **MCP** server setup (included in this repo)
 
-This allows **bilingual conversations** with the system.  
+### 1. Repository Setup
+```bash
+git clone https://github.com/MarwanAbdellah/MCP_Livekit_ENG-AR_Agent.git
+cd MCP_Livekit_ENG-AR_Agent
+```
+
+### 2. Install Dependencies
+```bash
+pip install uv
+uv sync
+```
+
+### 3. Configure Environment
+Create a `.env.local` file in the project root (loaded by `agent.py`):
+```env
+LIVEKIT_API_KEY=your_livekit_key
+LIVEKIT_API_SECRET=your_livekit_secret
+LIVEKIT_URL=wss://your-project.livekit.cloud
+AZURE_SPEECH_KEY=your_azure_speech_key
+AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint
+AZURE_OPENAI_API_KEY=your_azure_openai_key
+```
+
+### 4. Run
+Start the voice agent worker:
+```bash
+cd livekit-voice-agent
+uv run python agent.py
+```
+
+Test in console mode:
+```bash
+uv run python agent.py console
+```
+
+Start the MCP server (separate terminal):
+```bash
+cd mcp-server-demo
+uv run python main.py
+```
+
+The agent will listen to your microphone, process speech in real time, and respond with AI-generated audio in English or Arabic.
 
 ---
 
-## 📌 Requirements  
+## 🧪 Testing & Verification
 
-- Python **3.9+**  
-- LiveKit SDK  
-- STT + TTS provider (e.g., OpenAI Whisper, Google STT, ElevenLabs, Coqui TTS)  
-- MCP server setup  
+There are no automated tests in this repository. To verify the workflow:
 
-Install dependencies via:  
-```bash  
-pip install -r requirements.txt  
-```  
+1. Start the MCP server, then launch the agent worker.
+2. Join the LiveKit room and speak - confirm you are asked which language to use.
+3. Respond in either English or Arabic and verify the agent replies in the chosen language and handles code-switching correctly.
+4. Confirm the MCP tools (`add`, `subtract`, `user_info`) and `greeting` resource respond correctly over HTTP.
 
 ---
 
-## 🛠️ Future Improvements  
+## 📁 Project Structure
 
-- Add support for **more languages**.  
-- Implement **customizable voices** for TTS.  
-- Extend **MCP workflows** for specialized use cases.  
-- Improve **latency** for real-time interaction.  
+```text
+MCP_Livekit_ENG-AR_Agent/
+├── livekit-voice-agent/       # Main LiveKit voice agent
+│   ├── agent.py               # Agent entry point: STT, LLM, TTS, MCP wiring
+│   ├── pyproject.toml         # Project dependencies (uv)
+│   └── uv.lock                # Locked dependency versions
+├── mcp-server-demo/           # FastMCP demo server
+│   ├── main.py                # MCP tools, resources, and prompts
+│   ├── pyproject.toml         # mcp[cli] dependency
+│   └── uv.lock                # Locked dependency versions
+├── .gitignore
+├── .gitattributes
+└── README.md
+```
 
 ---
 
-## 🤝 Contributing  
+## 👤 Author
 
-Contributions are welcome! Please fork the repo and submit a PR for any improvements or bug fixes.  
+**Marwan Abdellah**
+- **GitHub**: [@MarwanAbdellah](https://github.com/MarwanAbdellah)
+- **LinkedIn**: [Marwan Abdellah](https://www.linkedin.com/in/marwan-abdellah/)
 
 ---
 
-## 📜 License  
+## 📄 License
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.  
+Distributed under the MIT License. See `LICENSE` for more information.
